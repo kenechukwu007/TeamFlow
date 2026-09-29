@@ -1,0 +1,32 @@
+{
+  "name": "teamflow",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/api",
+    "apps/web"
+  ],
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "db:setup": "node scripts/setup-local-db.mjs",
+    "db:start": "node scripts/start-local-db.mjs",
+    "db:stop": "node scripts/stop-local-db.mjs",
+    "db:migrate": "npm run db:migrate -w @teamflow/api",
+    "db:check": "npm run db:check -w @teamflow/api",
+    "db:import:sqlite": "npm run db:import:sqlite -w @teamflow/api",
+    "dev": "concurrently -k -n api,web \"npm run dev -w @teamflow/api\" \"npm run dev -w @teamflow/web\"",
+    "build": "npm run build --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "test": "npm run test -w @teamflow/api",
+    "test:e2e": "npm run test:e2e -w @teamflow/web",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "embedded-postgres": "18.4.0-beta.17",
+    "prettier": "^3.9.9"
+  }
+}
