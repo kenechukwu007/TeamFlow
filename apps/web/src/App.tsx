@@ -106,6 +106,27 @@ export function App() {
       .finally(() => setLoading(false));
   }, [user, refresh, handleError]);
   useEffect(() => {
+    if (!user) return;
+    let active = true;
+    let pending = false;
+    const timer = setInterval(async () => {
+      if (document.hidden || pending) return;
+      pending = true;
+      try {
+        const next = await api<Workspace>('/workspace');
+        if (active) setData(next);
+      } catch (err) {
+        if (active && err instanceof ApiError && err.status === 401) handleError(err);
+      } finally {
+        pending = false;
+      }
+    }, 5000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, [user, handleError]);
+  useEffect(() => {
     if (!notice) return;
     const timer = setTimeout(() => setNotice(''), 4000);
     return () => clearTimeout(timer);

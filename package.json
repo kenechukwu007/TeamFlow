@@ -22,7 +22,8 @@
     "test": "npm run test -w @teamflow/api",
     "test:e2e": "npm run test:e2e -w @teamflow/web",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "worker": "npm run worker -w @teamflow/api"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",

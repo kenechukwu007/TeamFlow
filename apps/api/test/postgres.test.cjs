@@ -23,7 +23,7 @@ after(async () => {
 
 test('migrations can run again without losing data', async () => {
   await db.migrate();
-  assert.equal((await db.get('SELECT count(*)::int AS count FROM schema_migrations')).count, 1);
+  assert.equal((await db.get('SELECT count(*)::int AS count FROM schema_migrations')).count, 2);
 });
 
 test('concurrent requests have isolated transaction connections', async () => {

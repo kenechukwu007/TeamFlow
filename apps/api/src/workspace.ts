@@ -16,13 +16,18 @@ import {
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { Database } from './database';
+import { WorkspaceCache } from './cache';
+import { recordActivity } from './activity';
 import { AuthGuard, AuthRequest } from './auth';
 import { CommentDto, EditTicketDto, ProjectDto, StatusDto, TicketDto } from './dto';
 
 @Controller()
 @UseGuards(AuthGuard)
 export class WorkspaceController {
-  constructor(@Inject(Database) private db: Database) {}
+  constructor(
+    @Inject(Database) private db: Database,
+    @Inject(WorkspaceCache) private cache: WorkspaceCache,
+  ) {}
   private async project(id: string) {
     const row = await this.db.get('SELECT * FROM projects WHERE id=$1', id);
     if (!row) throw new NotFoundException('Project not found.');
@@ -38,23 +43,29 @@ export class WorkspaceController {
       throw new BadRequestException('Assignee not found.');
   }
   private async activity(userId: string, message: string) {
-    await this.db.run(
-      'INSERT INTO activity(id,actor_id,message) VALUES($1,$2,$3)',
-      randomUUID(),
-      userId,
-      message,
-    );
+    await recordActivity(this.db, userId, message);
+  }
+  @Get('operations')
+  async operations() {
+    const pending = await this.db.get('SELECT count(*)::int AS count FROM activity_outbox');
+    return {
+      cache: this.cache.status(),
+      broker: { enabled: process.env.BROKER_ENABLED === 'true', pending: pending?.count },
+    };
   }
   @Get('workspace')
   async workspace() {
-    return {
+    // A committed DB revision makes stale cache keys unreachable, even after a
+    // Redis outage or concurrent reads/writes across multiple API instances.
+    const revision = await this.db.get('SELECT pg_current_snapshot()::text AS version');
+    return this.cache.remember(String(revision?.version), async () => ({
       projects: await this.db.all('SELECT * FROM projects ORDER BY created_at DESC, id'),
       tickets: await this.db.all('SELECT * FROM tickets ORDER BY created_at DESC, id'),
       members: await this.db.all('SELECT id,name,email FROM users ORDER BY name'),
       activity: await this.db.all(
         'SELECT a.*,u.name AS actor_name FROM activity a JOIN users u ON u.id=a.actor_id ORDER BY a.created_at DESC,a.sequence DESC LIMIT 30',
       ),
-    };
+    }));
   }
   @Post('projects')
   async createProject(@Body() body: ProjectDto, @Req() req: AuthRequest) {
