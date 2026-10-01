@@ -4,6 +4,8 @@ const request = require('supertest');
 const { createTestDatabase } = require('../../../scripts/test-database.cjs');
 const { randomUUID } = require('node:crypto');
 process.env.SEED_DEMO = 'false';
+process.env.BROKER_ENABLED = 'false';
+process.env.REDIS_URL = '';
 const { Test } = require('@nestjs/testing');
 const { AppModule, configure } = require('../dist/app');
 const { Database } = require('../dist/database');
@@ -28,6 +30,7 @@ after(async () => {
 
 test('private workspace rejects anonymous requests', async () => {
   await request(server).get('/api/workspace').expect(401);
+  await request(server).get('/api/operations').expect(401);
 });
 test('mutations require application header', async () => {
   await request(server)

@@ -22,6 +22,8 @@ try {
         DEMO_EMAIL: 'browser-test@example.invalid',
         DEMO_PASSWORD: randomBytes(24).toString('hex'),
         NODE_ENV: 'test',
+        BROKER_ENABLED: 'false',
+        REDIS_URL: '',
         PORT: '3000',
       },
     },

@@ -13,6 +13,9 @@ All accounts share one workspace. This learning app does not implement private o
 
 ## Run locally
 
+Optional Redis caching and RabbitMQ background activity processing are documented in
+[Cache and broker setup](docs/CACHE_AND_BROKER.md). Both are disabled by default.
+
 See [the step-by-step Git Bash guide](docs/RUN_LOCALLY.md).
 
 For this existing installation, start PostgreSQL in one terminal:

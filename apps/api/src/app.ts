@@ -3,11 +3,15 @@ import { Module, ValidationPipe } from '@nestjs/common';
 import { INestApplication } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
+import { WorkspaceCache } from './cache';
 import { Database } from './database';
 import { AuthController, AuthGuard } from './auth';
 import { WorkspaceController } from './workspace';
 
-@Module({ controllers: [AuthController, WorkspaceController], providers: [Database, AuthGuard] })
+@Module({
+  controllers: [AuthController, WorkspaceController],
+  providers: [Database, AuthGuard, WorkspaceCache],
+})
 export class AppModule {}
 
 export function configure(app: INestApplication) {

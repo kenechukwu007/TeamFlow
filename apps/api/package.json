@@ -11,22 +11,26 @@
     "typecheck": "tsc --noEmit",
     "dev": "npm run build && concurrently -k \"tsc --watch --preserveWatchOutput\" \"node --watch dist/main.js\"",
     "start": "node dist/main.js",
-    "test": "npm run build && node --test test/*.test.cjs"
+    "test": "npm run build && node --test test/*.test.cjs",
+    "worker": "node dist/worker.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.6",
     "@nestjs/core": "^11.1.6",
     "@nestjs/platform-express": "^11.1.6",
+    "amqplib": "^2.2.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "dotenv": "^17.2.2",
     "helmet": "^8.1.0",
     "pg": "^8.23.0",
+    "redis": "^6.2.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
     "@nestjs/testing": "^11.1.6",
+    "@types/amqplib": "^0.10.8",
     "@types/express": "^5.0.3",
     "@types/node": "^24.3.1",
     "@types/pg": "^8.23.1",
