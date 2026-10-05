@@ -24,6 +24,7 @@ services:
       - PORT=3000
       - DATABASE_URL=${DATABASE_URL:?Set DATABASE_URL}
       - REDIS_URL=redis://redis:6379
+      - BROKER_ENABLED=true
     depends_on:
        postgres:
         condition: service_healthy
@@ -60,10 +61,43 @@ services:
       timeout: 3s
       retries: 5
       start_period: 5s
+
+  rabbitmq:
+    image: rabbitmq:4.3.6-management
+    ports:
+      - "127.0.0.1:15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:?Set RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD}
+    hostname: rabbitmq
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  worker:
+    image: teamflow-api:local
+    command: ["node", "apps/api/dist/worker.js"]
+    environment:
+      - DATABASE_URL=${DATABASE_URL:?Set DATABASE_URL}
+      - AMQP_URL=${AMQP_URL:?Set AMQP_URL}
+      - AMQP_QUEUE=teamflow.activity.v1
+    depends_on:
+      api: 
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
+        
       
 
 
 volumes:
   postgres_data:
+  rabbitmq_data:
       
 
