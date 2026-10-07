@@ -7,9 +7,10 @@ import { WorkspaceCache } from './cache';
 import { Database } from './database';
 import { AuthController, AuthGuard } from './auth';
 import { WorkspaceController } from './workspace';
+import { HealthController } from './health';
 
 @Module({
-  controllers: [AuthController, WorkspaceController],
+  controllers: [AuthController, WorkspaceController, HealthController],
   providers: [Database, AuthGuard, WorkspaceCache],
 })
 export class AppModule {}

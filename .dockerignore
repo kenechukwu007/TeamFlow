@@ -1,0 +1,23 @@
+# Dependencies and generated builds at any depth
+**/node_modules
+**/dist
+
+# Environment files
+**/.env
+**/.env.*
+!**/.env.example
+
+# Git and operating-system files
+.git
+**/.DS_Store
+
+# Local database files and backups
+data/
+data-backup-*/
+**/*.sqlite*
+
+# Test output and logs
+**/coverage
+**/test-results
+**/playwright-report
+**/*.log

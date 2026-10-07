@@ -24,7 +24,7 @@ async function bootstrap() {
     }
     await seed(db);
     app.enableShutdownHooks();
-    await app.listen(Number(process.env.PORT || 3000), '127.0.0.1');
+    await app.listen(Number(process.env.PORT || 3000), process.env.HOST || '127.0.0.1');
   } catch (error) {
     await app.close();
     throw error;
