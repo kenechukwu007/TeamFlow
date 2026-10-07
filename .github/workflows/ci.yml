@@ -1,0 +1,52 @@
+name: TeamFlow CI
+
+on:
+  pull_request:
+    branches: [main]
+
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: teamflow
+          POSTGRES_PASSWORD: teamflow_ci_password # disposable DB: the database is created for the job and removed afterward
+          POSTGRES_DB: teamflow_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U teamflow -d teamflow_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checking out
+        uses: actions/checkout@v7
+
+      - name: Set up node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          check-latest: false
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Check types
+        run: npm run typecheck
+
+      - name: Run tests
+        env:
+          TEST_DATABASE_URL: postgresql://teamflow:teamflow_ci_password@localhost:5432/teamflow_test
+        run: npm test
+
+      - name: Build application
+        run: npm run build
