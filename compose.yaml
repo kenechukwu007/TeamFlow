@@ -1,5 +1,5 @@
 services:
-  postgres: 
+  postgres:
     image: postgres:18
     environment:
       - POSTGRES_DB=teamflow
@@ -8,7 +8,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U teamflow -d teamflow"]
+      test: ['CMD-SHELL', 'pg_isready -U teamflow -d teamflow']
       interval: 5s
       timeout: 30s
       retries: 10
@@ -26,7 +26,7 @@ services:
       - REDIS_URL=redis://redis:6379
       - BROKER_ENABLED=true
     depends_on:
-       postgres:
+      postgres:
         condition: service_healthy
     healthcheck:
       test:
@@ -45,7 +45,7 @@ services:
       dockerfile: Docker-files/web.DockerFile
     image: teamflow-web:local
     ports:
-      - "127.0.0.1:8080:80"
+      - '127.0.0.1:8080:80'
     depends_on:
       api:
         condition: service_healthy
@@ -53,7 +53,7 @@ services:
   redis:
     image: redis:8-alpine
     healthcheck:
-      test: 
+      test:
         - CMD
         - redis-cli
         - ping
@@ -65,7 +65,7 @@ services:
   rabbitmq:
     image: rabbitmq:4.3.6-management
     ports:
-      - "127.0.0.1:15672:15672"
+      - '127.0.0.1:15672:15672'
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:?Set RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD}
@@ -73,7 +73,7 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -81,23 +81,18 @@ services:
 
   worker:
     image: teamflow-api:local
-    command: ["node", "apps/api/dist/worker.js"]
+    command: ['node', 'apps/api/dist/worker.js']
     environment:
       - DATABASE_URL=${DATABASE_URL:?Set DATABASE_URL}
       - AMQP_URL=${AMQP_URL:?Set AMQP_URL}
       - AMQP_QUEUE=teamflow.activity.v1
     depends_on:
-      api: 
+      api:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
     restart: on-failure
-        
-      
-
 
 volumes:
   postgres_data:
   rabbitmq_data:
-      
-
